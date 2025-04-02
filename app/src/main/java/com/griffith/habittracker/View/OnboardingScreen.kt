@@ -34,8 +34,24 @@ fun OnboardingNavigation() {
             OnboardingScreenTwo(navController)
         }
         composable("dashboard") {
-            DashboardScreen(navController) //Assuming DashboardScreen is your homepage
+            DashboardScreen(navController)
         }
+        composable("meditation") {
+            MeditationScreen()
+        }
+        composable("stats") {
+            Text("Stats Screen")
+        }
+        composable("chatbot") {
+            Text("Chatbot Screen")
+        }
+        composable("settings") {
+            Text("Settings Screen")
+        }
+        composable("login/register") {
+            Text("Login/Register Screen")
+        }
+
 
     }
 }
