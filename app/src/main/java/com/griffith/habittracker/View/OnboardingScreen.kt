@@ -37,7 +37,7 @@ fun OnboardingNavigation() {
             DashboardScreen(navController)
         }
         composable("meditation") {
-            MeditationScreen()
+            MeditationScreen(navController)
         }
         composable("stats") {
             Text("Stats Screen")

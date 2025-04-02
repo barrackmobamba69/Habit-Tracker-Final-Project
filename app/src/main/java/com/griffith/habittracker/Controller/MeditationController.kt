@@ -21,14 +21,14 @@ class MeditationController(private val context: Context) {
     fun playSound(soundType: String?) {
         stopSound()
 
-        if (soundType == null) return
+        if (soundType == null || soundType == "No Sound") return
 
         // Determine the corresponding sound resource ID based on the selected sound
         val soundResourceId = when(soundType) {
             "White Noise" -> R.raw.white_noise
             "Brown Noise" -> R.raw.brown_noise
             "Pink Noise" -> R.raw.pink_noise
-            "528_hz_singing_bowl" -> R.raw.hz_528_singing_bowl
+            "528 hz Singing Bowl" -> R.raw.hz_528_singing_bowl
             "Wim Hof" -> R.raw.guided_wim_hof_method_breathing
             "Handpan Music" -> R.raw.handpan_music_by_malte_marten
             "Ocean Waves" -> R.raw.ocean_waves
