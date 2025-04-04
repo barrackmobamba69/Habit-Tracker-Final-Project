@@ -1,5 +1,8 @@
 package com.griffith.habittracker.View
 
+import android.os.Build
+import android.widget.NumberPicker
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
@@ -11,10 +14,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavHostController
 import com.griffith.habittracker.Controller.MeditationController
 import kotlinx.coroutines.launch
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Arrangement
 
+@RequiresApi(Build.VERSION_CODES.Q)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MeditationScreen(navController: NavHostController) {
@@ -23,7 +30,7 @@ fun MeditationScreen(navController: NavHostController) {
     val context = LocalContext.current
     val controller = remember { MeditationController(context) }
     var selectedSound by remember { mutableStateOf("No Sound") }
-    var selectedTime by remember { mutableStateOf(5f) }
+    var selectedMinutes by remember { mutableStateOf(5) }
     var isTimerRunning by remember { mutableStateOf(false) }
 
     // Ensures that the sound stops when user exits the screen
@@ -68,24 +75,51 @@ fun MeditationScreen(navController: NavHostController) {
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Sound selection dropdown
-                SoundDropdown(controller, selectedSound) { sound ->
-                    selectedSound = sound
+
+
+                // Row containing both pickers
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    // Sound selection column
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = "Select Sound",
+                            style = MaterialTheme.typography.titleMedium,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+
+                        SoundNumberPicker(
+                            controller = controller,
+                            selectedSound = selectedSound,
+                            onSoundSelected = {
+                                selectedSound = it
+                                controller.playSound(it)
+                            }
+                        )
+                    }
+
+                    // Time selection column
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = "Duration (min)",
+                            style = MaterialTheme.typography.titleMedium,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+
+                        TimeNumberPicker(
+                            selectedMinutes = selectedMinutes,
+                            onMinutesSelected = { selectedMinutes = it }
+                        )
+                    }
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Timer slider (1 to 30 minutes)
-                Text(text = "Meditation Time: ${selectedTime.toInt()} min", style = MaterialTheme.typography.bodyMedium)
-                Slider(
-                    value = selectedTime,
-                    onValueChange = { selectedTime = it },
-                    valueRange = 1f..30f,
-                    steps = 29,
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(32.dp))
 
                 // Button to start the meditation timer
                 Button(
@@ -96,7 +130,10 @@ fun MeditationScreen(navController: NavHostController) {
                             controller.playSound(selectedSound)
                         }
                         isTimerRunning = !isTimerRunning
-                    }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp)
                 ) {
                     Text(text = if (isTimerRunning) "Stop Meditation" else "Start Meditation")
                 }
@@ -105,40 +142,60 @@ fun MeditationScreen(navController: NavHostController) {
     }
 }
 
-// Keep your existing SoundDropdown composable unchanged
-@OptIn(ExperimentalMaterial3Api::class)
+@RequiresApi(Build.VERSION_CODES.Q)
 @Composable
-fun SoundDropdown(controller: MeditationController, selectedSound: String, onSoundSelected: (String) -> Unit) {
-    var expanded by remember { mutableStateOf(false) }
+fun SoundNumberPicker(
+    controller: MeditationController,
+    selectedSound: String,
+    onSoundSelected: (String) -> Unit
+) {
+    val soundOptions = controller.getSoundOptions()
 
-    ExposedDropdownMenuBox(
-        expanded = expanded,
-        onExpandedChange = { expanded = !expanded }
-    ) {
-        TextField(
-            value = selectedSound,
-            onValueChange = {},
-            readOnly = true,
-            trailingIcon = {
-                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
-            },
-            modifier = Modifier.menuAnchor()
-        )
+    AndroidView(
+        factory = { context ->
+            NumberPicker(context).apply {
+                minValue = 0
+                maxValue = soundOptions.size - 1
+                displayedValues = soundOptions.toTypedArray()
+                value = soundOptions.indexOf(selectedSound).coerceAtLeast(0)
 
-        ExposedDropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            controller.getSoundOptions().forEach { sound ->
-                DropdownMenuItem(
-                    text = { Text(sound) },
-                    onClick = {
-                        onSoundSelected(sound)
-                        expanded = false
-                        controller.playSound(sound)
-                    }
-                )
+                // Fix text color visibility
+                setTextColor(android.graphics.Color.WHITE)
+
+                setOnValueChangedListener { _, _, newVal ->
+                    onSoundSelected(soundOptions[newVal])
+                }
             }
+        },
+        update = { picker ->
+            picker.value = soundOptions.indexOf(selectedSound).coerceAtLeast(0)
         }
-    }
+    )
+}
+
+@RequiresApi(Build.VERSION_CODES.Q)
+@Composable
+fun TimeNumberPicker(
+    selectedMinutes: Int,
+    onMinutesSelected: (Int) -> Unit
+) {
+    AndroidView(
+        factory = { context ->
+            NumberPicker(context).apply {
+                minValue = 1
+                maxValue = 60
+                value = selectedMinutes
+
+                // Fix text color visibility
+                setTextColor(android.graphics.Color.WHITE)
+
+                setOnValueChangedListener { _, _, newVal ->
+                    onMinutesSelected(newVal)
+                }
+            }
+        },
+        update = { picker ->
+            picker.value = selectedMinutes
+        }
+    )
 }
