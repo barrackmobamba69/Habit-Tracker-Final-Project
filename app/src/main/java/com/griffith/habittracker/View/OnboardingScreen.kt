@@ -21,6 +21,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.griffith.habittracker.Controller.StreakController
 
 @Composable
 fun OnboardingNavigation() {
@@ -141,8 +142,10 @@ fun OnboardingScreenTwo(navController: NavController) {
         Spacer(modifier = Modifier.height(16.dp))
 
         //Submit button
-        Button(onClick = { navController.navigate("dashboard") }) {
-            Text(text = "Next")
+        Button(onClick = {
+            StreakController.startStreak()
+            navController.navigate("dashboard") }) {
+            Text(text = "Start my journey")
         }
         //Go back button
         Button(onClick = { navController.navigate("onboardingScreenOne") }) {
