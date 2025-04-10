@@ -51,6 +51,8 @@ android {
 
 dependencies {
 
+    implementation(libs.coil.compose)
+    implementation(libs.coil.gif)  //GIF dependency
     implementation (libs.accompanist.pager)
     implementation (libs.androidx.navigation.compose)  //Navigation dependency
     implementation(libs.androidx.core.ktx)

@@ -1,5 +1,8 @@
 package com.griffith.habittracker.View
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
@@ -12,9 +15,24 @@ import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import com.griffith.habittracker.Controller.EmergencyController
+import com.griffith.habittracker.Controller.EmergencyController.showEmergencyDialog
 import com.griffith.habittracker.Controller.StreakController
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
+import com.griffith.habittracker.R
+import androidx.compose.foundation.Image
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
+import coil.compose.rememberAsyncImagePainter
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,7 +57,7 @@ fun DashboardScreen(navController: NavHostController) {
                 TopAppBar(
                     title = {
                         Text(
-                            text = "Habit Tracker",
+                            text = "Dashboard",
                             style = MaterialTheme.typography.headlineLarge,
                             color = MaterialTheme.colorScheme.primary,
                             fontWeight = FontWeight.Bold,
@@ -54,7 +72,23 @@ fun DashboardScreen(navController: NavHostController) {
                         }) {
                             Icon(Icons.Filled.Menu, contentDescription = "Menu")
                         }
-                    }
+                    },
+                    actions = {
+                        // Emergency button
+                        Button(
+                            onClick = { EmergencyController.showEmergencySupport() },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.secondary
+                            )
+                        ) {
+                            Text("Emergency")
+                        }
+                    },
+
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer
+                    )
+
                 )
             }
         ) { innerPadding ->
@@ -65,9 +99,6 @@ fun DashboardScreen(navController: NavHostController) {
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-
-                Text(text = "Dashboard Content", style = MaterialTheme.typography.headlineLarge)
-
 
                 // Streak Counter Card
                 Card(
@@ -156,5 +187,41 @@ fun DashboardScreen(navController: NavHostController) {
             }
         }
     }
-}
 
+
+
+    // Emergency Support Dialog
+    if (EmergencyController.showEmergencyDialog.value) {
+        val quote = remember { EmergencyController.getRandomQuote() }
+
+        AlertDialog(
+            onDismissRequest = { EmergencyController.dismissEmergencySupport() },
+            title = {
+                Text(
+                    "Think about it!",
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            },
+            text = {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        quote,
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = { EmergencyController.dismissEmergencySupport() }
+                ) {
+                    Text("I Feel Better")
+                }
+            }
+        )
+    }
+}
