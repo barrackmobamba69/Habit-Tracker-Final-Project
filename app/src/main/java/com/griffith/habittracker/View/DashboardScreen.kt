@@ -42,7 +42,7 @@ fun DashboardScreen(navController: NavHostController) {
 
     // Update time components every second
     LaunchedEffect(Unit) {
-        while(true) {
+        while (true) {
             StreakController.updateTimeComponents()
             delay(1000) // Update every second
         }
@@ -184,6 +184,12 @@ fun DashboardScreen(navController: NavHostController) {
                         style = MaterialTheme.typography.titleLarge
                     )
                 }
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // YouTube videos section
+                YouTubeSection()
+
             }
         }
     }
