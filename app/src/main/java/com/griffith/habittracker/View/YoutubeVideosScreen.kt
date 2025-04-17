@@ -3,7 +3,9 @@ package com.griffith.habittracker.View
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -16,7 +18,7 @@ import com.griffith.habittracker.Controller.YouTubeController
 import com.griffith.habittracker.R
 
 @Composable
-fun YouTubeSection() {
+fun YoutubeSection() {
     val context = LocalContext.current
     val videos = YouTubeController.getVideos()
 
@@ -25,7 +27,7 @@ fun YouTubeSection() {
             .fillMaxWidth()
             .padding(vertical = 8.dp)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(modifier = Modifier.padding(16.dp).verticalScroll(rememberScrollState())) { // Scroll state added
             Text(
                 text = "Watch these YouTube videos",
                 style = MaterialTheme.typography.titleMedium
