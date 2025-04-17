@@ -188,7 +188,7 @@ fun DashboardScreen(navController: NavHostController) {
                 Spacer(modifier = Modifier.height(24.dp))
 
                 // YouTube videos section
-                YouTubeSection()
+                YoutubeSection()
 
             }
         }

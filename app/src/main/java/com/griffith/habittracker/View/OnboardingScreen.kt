@@ -1,5 +1,7 @@
 package com.griffith.habittracker.View
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,6 +25,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.griffith.habittracker.Controller.StreakController
 
+@RequiresApi(Build.VERSION_CODES.Q)
 @Composable
 fun OnboardingNavigation() {
     val navController = rememberNavController()
@@ -44,7 +47,7 @@ fun OnboardingNavigation() {
             Text("Stats Screen")
         }
         composable("chatbot") {
-            Text("Chatbot Screen")
+            ChatbotScreen(navController)
         }
         composable("settings") {
             Text("Settings Screen")
