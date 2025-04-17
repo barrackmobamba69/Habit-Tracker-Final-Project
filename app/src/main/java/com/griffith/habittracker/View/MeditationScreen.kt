@@ -64,7 +64,10 @@ fun MeditationScreen(navController: NavHostController) {
                         }) {
                             Icon(Icons.Filled.Menu, contentDescription = "Menu")
                         }
-                    }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer
+                    )
                 )
             }
         ) { innerPadding ->
