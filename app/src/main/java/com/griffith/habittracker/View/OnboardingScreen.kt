@@ -12,10 +12,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -24,11 +26,22 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.griffith.habittracker.Controller.StreakController
+import com.griffith.habittracker.Model.UserPreferences
 
 @RequiresApi(Build.VERSION_CODES.Q)
 @Composable
 fun OnboardingNavigation() {
     val navController = rememberNavController()
+    val context = LocalContext.current
+
+    // Check if onboarding should be skipped or not
+    LaunchedEffect(key1 = true) {
+        if (UserPreferences.isOnboardingCompleted()) {
+            navController.navigate("dashboard") {
+                popUpTo("onboardingScreenOne") { inclusive = true }
+            }
+        }
+    }
 
     NavHost(navController = navController, startDestination = "onboardingScreenOne") {
         composable("onboardingScreenOne") {
@@ -150,6 +163,7 @@ fun OnboardingScreenTwo(navController: NavController) {
             navController.navigate("dashboard") }) {
             Text(text = "Start my journey")
         }
+
         //Go back button
         Button(onClick = { navController.navigate("onboardingScreenOne") }) {
             Text(text = "Back")
