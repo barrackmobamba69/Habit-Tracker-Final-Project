@@ -39,17 +39,17 @@ fun OnboardingNavigation() {
     LaunchedEffect(Unit) {
         StreakController.loadStreak(context)
 
-        // Check if onboarding was completed previously
-        if (UserPreferences.isOnboardingCompleted(context)) {
-            navController.navigate("dashboard") {
-                popUpTo("onboardingScreenOne") { inclusive = true }
-            }
-        }
+//        // Check if onboarding was completed previously
+//        if (UserPreferences.isOnboardingCompleted(context)) {
+//            navController.navigate("dashboard") {
+//                popUpTo("onboardingScreenOne") { inclusive = true }
+//            }
+//        }
     }
 
     NavHost(navController = navController, startDestination = "onboardingScreenOne") {
         composable("onboardingScreenOne") {
-            OnboardingScreenOne(navController)
+            OnboardingScreenOne(navController, UserPreferences.isOnboardingCompleted(context))
         }
         composable("onboardingScreenTwo") {
             OnboardingScreenTwo(navController)
@@ -76,7 +76,7 @@ fun OnboardingNavigation() {
 }
 
 @Composable
-fun OnboardingScreenOne(navController: NavController){
+fun OnboardingScreenOne(navController: NavController, detailsCompleted: Boolean){
     Column(
         modifier = Modifier.padding(16.dp).fillMaxWidth(),
         horizontalAlignment = Alignment.Start //Instead .CenterHorizontally
@@ -116,9 +116,17 @@ fun OnboardingScreenOne(navController: NavController){
         )
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Submit button
-        Button(onClick = { navController.navigate("onboardingScreenTwo") }) {
-            Text(text = "Next")
+        // Submit button - modified to check if details are already entered
+        Button(onClick = {
+            if (detailsCompleted) {
+                // If details already entered, go straight to dashboard
+                navController.navigate("dashboard")
+            } else {
+                // Otherwise show details entry screen
+                navController.navigate("onboardingScreenTwo")
+            }
+        }) {
+            Text(text = if (detailsCompleted) "Continue to Dashboard" else "Next")
         }
     }
 }
