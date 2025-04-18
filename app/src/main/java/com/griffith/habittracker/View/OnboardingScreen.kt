@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,9 +35,12 @@ fun OnboardingNavigation() {
     val navController = rememberNavController()
     val context = LocalContext.current
 
-    // Check if onboarding should be skipped or not
-    LaunchedEffect(key1 = true) {
-        if (UserPreferences.isOnboardingCompleted()) {
+    // Load streak data when app starts
+    LaunchedEffect(Unit) {
+        StreakController.loadStreak(context)
+
+        // Check if onboarding was completed previously
+        if (UserPreferences.isOnboardingCompleted(context)) {
             navController.navigate("dashboard") {
                 popUpTo("onboardingScreenOne") { inclusive = true }
             }
@@ -68,8 +72,6 @@ fun OnboardingNavigation() {
         composable("login/register") {
             Text("Login/Register Screen")
         }
-
-
     }
 }
 
@@ -114,7 +116,7 @@ fun OnboardingScreenOne(navController: NavController){
         )
         Spacer(modifier = Modifier.height(16.dp))
 
-        //Submit button
+        // Submit button
         Button(onClick = { navController.navigate("onboardingScreenTwo") }) {
             Text(text = "Next")
         }
@@ -125,6 +127,7 @@ fun OnboardingScreenOne(navController: NavController){
 fun OnboardingScreenTwo(navController: NavController) {
     val habit = remember { mutableStateOf("") }
     val reason = remember { mutableStateOf("") }
+    val context = LocalContext.current
 
     Column(
         modifier = Modifier.padding(16.dp).fillMaxWidth(),
@@ -138,7 +141,7 @@ fun OnboardingScreenTwo(navController: NavController) {
         )
         Spacer(modifier = Modifier.height(16.dp))
 
-        //Question 1
+        // Question 1
         Text(text = "What bad habit you would like to quit?")
         OutlinedTextField(
             value = habit.value,
@@ -147,7 +150,7 @@ fun OnboardingScreenTwo(navController: NavController) {
             //placeholder = {Text(text = "e.g., Smoking, Procrastination")}
         )
 
-        //Question 2
+        // Question 2
         Spacer(modifier = Modifier.height(16.dp))
         Text(text = "Why would you quit it?")
         OutlinedTextField(
@@ -157,15 +160,19 @@ fun OnboardingScreenTwo(navController: NavController) {
         )
         Spacer(modifier = Modifier.height(16.dp))
 
-        //Submit button
+        // Submit details button
         Button(onClick = {
-            StreakController.startStreak()
-            navController.navigate("dashboard") }) {
+            // Save user data and start streak
+            UserPreferences.saveUserDetails(context, habit.value, reason.value)
+            StreakController.startStreak(context)
+            navController.navigate("dashboard")
+        }) {
             Text(text = "Start my journey")
         }
 
-        //Go back button
-        Button(onClick = { navController.navigate("onboardingScreenOne") }) {
+        // Go back button
+        OutlinedButton(
+            onClick = { navController.navigate("onboardingScreenOne") }) {
             Text(text = "Back")
         }
     }

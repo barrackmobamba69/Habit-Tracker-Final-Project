@@ -1,9 +1,11 @@
 package com.griffith.habittracker.Controller
 
+import android.content.Context
 import androidx.compose.runtime.mutableStateOf
 import java.util.concurrent.TimeUnit
 
 object StreakController {
+
     // Using a singleton object to maintain streak across screens
     val streakStartTime = mutableStateOf<Long?>(null)
 
@@ -13,16 +15,32 @@ object StreakController {
     val minutes = mutableStateOf(0)
     val seconds = mutableStateOf(0)
 
+    // Load saved streak time
+    fun loadStreak(context: Context) {
+        val prefs = context.getSharedPreferences("streak_prefs", Context.MODE_PRIVATE)
+        val savedTime = prefs.getLong("streak_start_time", 0)
+        if (savedTime > 0) {
+            streakStartTime.value = savedTime
+            updateTimeComponents()
+        }
+    }
+
     // Start the streak timer
-    fun startStreak() {
+    fun startStreak(context: Context) {
         streakStartTime.value = System.currentTimeMillis()
+        // Save to preferences
+        val prefs = context.getSharedPreferences("streak_prefs", Context.MODE_PRIVATE)
+        prefs.edit().putLong("streak_start_time", streakStartTime.value!!).apply()
         updateTimeComponents()
     }
 
     // Record a relapse and restart timer
-    fun recordRelapse() {
+    fun recordRelapse(context: Context) {
         // Reset and restart
         streakStartTime.value = System.currentTimeMillis()
+        // Save to preferences
+        val prefs = context.getSharedPreferences("streak_prefs", Context.MODE_PRIVATE)
+        prefs.edit().putLong("streak_start_time", streakStartTime.value!!).apply()
         updateTimeComponents()
     }
 

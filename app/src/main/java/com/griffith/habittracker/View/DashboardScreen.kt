@@ -39,6 +39,7 @@ import coil.compose.rememberAsyncImagePainter
 fun DashboardScreen(navController: NavHostController) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     // Update time components every second
     LaunchedEffect(Unit) {
@@ -170,7 +171,7 @@ fun DashboardScreen(navController: NavHostController) {
                 // Relapse Button
                 Button(
                     onClick = {
-                        StreakController.recordRelapse()
+                        StreakController.recordRelapse(context)
                     },
                     modifier = Modifier
                         .fillMaxWidth()
