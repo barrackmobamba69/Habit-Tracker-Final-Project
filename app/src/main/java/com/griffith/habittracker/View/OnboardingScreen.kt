@@ -1,6 +1,7 @@
 package com.griffith.habittracker.View
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -38,13 +39,6 @@ fun OnboardingNavigation() {
     // Load streak data when app starts
     LaunchedEffect(Unit) {
         StreakController.loadStreak(context)
-
-//        // Check if onboarding was completed previously
-//        if (UserPreferences.isOnboardingCompleted(context)) {
-//            navController.navigate("dashboard") {
-//                popUpTo("onboardingScreenOne") { inclusive = true }
-//            }
-//        }
     }
 
     NavHost(navController = navController, startDestination = "onboardingScreenOne") {
@@ -67,7 +61,7 @@ fun OnboardingNavigation() {
             ChatbotScreen(navController)
         }
         composable("settings") {
-            Text("Settings Screen")
+            SettingsScreen(navController)
         }
         composable("login/register") {
             Text("Login/Register Screen")
@@ -118,12 +112,16 @@ fun OnboardingScreenOne(navController: NavController, detailsCompleted: Boolean)
 
         // Submit button - modified to check if details are already entered
         Button(onClick = {
-            if (detailsCompleted) {
-                // If details already entered, go straight to dashboard
-                navController.navigate("dashboard")
-            } else {
-                // Otherwise show details entry screen
-                navController.navigate("onboardingScreenTwo")
+            try {
+                if (detailsCompleted) {
+                    // If details already entered, go straight to dashboard
+                    navController.navigate("dashboard")
+                } else {
+                    // Otherwise show details entry screen
+                    navController.navigate("onboardingScreenTwo")
+                }
+            } catch (e: Exception) {
+                Log.e("Navigation", "Error navigating: ${e.message}", e)
             }
         }) {
             Text(text = if (detailsCompleted) "Continue to Dashboard" else "Next")

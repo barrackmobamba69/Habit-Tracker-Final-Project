@@ -2,6 +2,7 @@ package com.griffith.habittracker.View
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
@@ -188,14 +189,17 @@ fun DashboardScreen(navController: NavHostController) {
 
                 Spacer(modifier = Modifier.height(24.dp))
 
+                // Tasks Section
+                TaskSection()
+
+                Spacer(modifier = Modifier.height(24.dp))
+
                 // YouTube videos section
                 YoutubeSection()
 
             }
         }
     }
-
-
 
     // Emergency Support Dialog
     if (EmergencyController.showEmergencyDialog.value) {
