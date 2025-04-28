@@ -51,6 +51,7 @@ android {
 
 dependencies {
 
+    implementation (libs.coil.compose.v222)
     implementation (libs.generativeai) //Gemini dependency 0.9.0
     implementation(libs.coil.compose)
     implementation(libs.coil.gif)  //GIF dependency

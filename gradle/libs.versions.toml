@@ -2,6 +2,7 @@
 accompanistPager = "0.32.0"
 agp = "8.6.1"
 coilCompose = "2.4.0"
+coilComposeVersion = "2.2.2"
 generativeai = "0.9.0"
 kotlin = "1.9.0"
 coreKtx = "1.15.0"
@@ -21,6 +22,7 @@ accompanist-pager = { module = "com.google.accompanist:accompanist-pager", versi
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
+coil-compose-v222 = { module = "io.coil-kt:coil-compose", version.ref = "coilComposeVersion" }
 coil-gif = { module = "io.coil-kt:coil-gif", version.ref = "coilCompose" }
 generativeai = { module = "com.google.ai.client.generativeai:generativeai", version.ref = "generativeai" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }

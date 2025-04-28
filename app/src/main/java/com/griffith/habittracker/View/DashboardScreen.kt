@@ -1,39 +1,37 @@
 package com.griffith.habittracker.View
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
-import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.rememberDrawerState
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import androidx.navigation.NavHostController
 import com.griffith.habittracker.Controller.EmergencyController
-import com.griffith.habittracker.Controller.EmergencyController.showEmergencyDialog
 import com.griffith.habittracker.Controller.StreakController
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.delay
-
-import androidx.compose.foundation.background
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
-import coil.compose.rememberAsyncImagePainter
-import coil.request.ImageRequest
+import com.griffith.habittracker.Controller.YouTubeController
 import com.griffith.habittracker.R
-import androidx.compose.foundation.Image
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
-import coil.compose.rememberAsyncImagePainter
-
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -41,6 +39,10 @@ fun DashboardScreen(navController: NavHostController) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
+    //val scrollState = rememberScrollState()
+
+    // State to control whether to show YouTube dialog
+    var showYouTubeDialog by remember { mutableStateOf(false) }
 
     // Update time components every second
     LaunchedEffect(Unit) {
@@ -86,11 +88,9 @@ fun DashboardScreen(navController: NavHostController) {
                             Text("Emergency")
                         }
                     },
-
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = MaterialTheme.colorScheme.primaryContainer
                     )
-
                 )
             }
         ) { innerPadding ->
@@ -98,10 +98,10 @@ fun DashboardScreen(navController: NavHostController) {
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
-                    .padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .padding(16.dp)
+                    //.verticalScroll(scrollState),
+                //horizontalAlignment = Alignment.CenterHorizontally
             ) {
-
                 // Streak Counter Card
                 Card(
                     modifier = Modifier
@@ -167,7 +167,7 @@ fun DashboardScreen(navController: NavHostController) {
                     }
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
                 // Relapse Button
                 Button(
@@ -187,16 +187,45 @@ fun DashboardScreen(navController: NavHostController) {
                     )
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-                // Tasks Section
-                TaskSection()
+                // Tasks Section with height constraint
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = 290.dp)
+                ) {
+                    TaskSection()
+                }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-                // YouTube videos section
-                YoutubeSection()
+                // Button to show YouTube videos dialog
+                Button(
+                    onClick = { showYouTubeDialog = true },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Icon(
+                            Icons.Default.PlayArrow,
+                            contentDescription = "Watch Videos",
+                            modifier = Modifier.padding(end = 8.dp)
+                        )
+                        Text(
+                            text = "Watch YouTube Videos",
+                            style = MaterialTheme.typography.labelLarge
+                        )
+                    }
+                }
 
+                Spacer(modifier = Modifier.height(32.dp))
             }
         }
     }
@@ -234,5 +263,122 @@ fun DashboardScreen(navController: NavHostController) {
                 }
             }
         )
+    }
+
+    // YouTube Videos Dialog - Only shown when button is clicked
+    if (showYouTubeDialog) {
+        Dialog(
+            onDismissRequest = { showYouTubeDialog = false },
+            properties = DialogProperties(
+                dismissOnBackPress = true,
+                dismissOnClickOutside = true,
+                usePlatformDefaultWidth = false
+            )
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
+            ) {
+                // YouTube content with scrolling
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .padding(16.dp)
+                ) {
+                    // Header with title and close button
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "YouTube Videos",
+                            style = MaterialTheme.typography.headlineSmall,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+
+                        IconButton(
+                            onClick = { showYouTubeDialog = false }
+                        ) {
+                            Icon(
+                                Icons.Default.Close,
+                                contentDescription = "Close",
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
+
+                    // Youtube section
+                    YouTubeVideosList()
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun YouTubeVideosList() {
+    val context = LocalContext.current
+    val videos = YouTubeController.getVideos()
+
+    videos.forEach { video ->
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp)
+                .clickable {
+                    YouTubeController.openYoutubeVideo(video.title, context)
+                }
+        ) {
+            Column(
+                modifier = Modifier.padding(8.dp)
+            ) {
+                // Try to load image from resource
+                Image(
+                    painter = painterResource(
+                        id = when (video.title) {
+                            "The Simplest Daily Routine for Self-Improvement" ->
+                                R.drawable.the_simplest_daily_routine_for_self_improvement
+
+                            "This morning routine is scientifically proven to make you limitless" ->
+                                R.drawable.this_morning_routine_is_scientifically_proven_to_make_you_limitless
+
+                            "How to learn anything faster than everyone" ->
+                                R.drawable.how_to_learn_anything_faster_than_everyone
+
+                            "Feeling lost in your twenties" ->
+                                R.drawable.feeling_lost_in_your_twenties
+
+                            "You waste too much time and it needs to stop" ->
+                                R.drawable.you_waste_too_much_time_and_it_needs_to_stop
+
+                            else -> R.drawable.the_simplest_daily_routine_for_self_improvement
+                        }
+                    ),
+                    contentDescription = video.title,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(180.dp)
+                        .clip(RoundedCornerShape(8.dp)),
+                    contentScale = ContentScale.Crop
+                )
+            }
+
+            //Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = video.title,
+                style = MaterialTheme.typography.titleSmall,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+        }
     }
 }

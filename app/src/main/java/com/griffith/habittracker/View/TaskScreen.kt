@@ -61,7 +61,7 @@ fun TaskSection() {
                 }
             }
 
-            Divider(modifier = Modifier.padding(vertical = 8.dp))
+            Divider(modifier = Modifier.padding(vertical = 4.dp))
 
             // Task list
             LazyColumn {
@@ -91,7 +91,7 @@ fun TaskSection() {
                 OutlinedTextField(
                     value = newTaskTitle,
                     onValueChange = { newTaskTitle = it },
-                    label = { Text("Task Title") },
+                    label = { Text("Task") },
                     modifier = Modifier.fillMaxWidth()
                 )
             },
