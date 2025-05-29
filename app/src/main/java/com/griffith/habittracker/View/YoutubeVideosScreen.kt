@@ -29,7 +29,7 @@ fun YoutubeSection() {
     ) {
         Column(modifier = Modifier.padding(16.dp).verticalScroll(rememberScrollState())) { // Scroll state added
             Text(
-                text = "Watch these YouTube videos",
+                text = "Click to load videos",
                 style = MaterialTheme.typography.titleMedium
             )
 

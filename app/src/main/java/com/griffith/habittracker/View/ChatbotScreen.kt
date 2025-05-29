@@ -2,6 +2,7 @@ package com.griffith.habittracker.View
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
@@ -11,6 +12,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -23,6 +25,7 @@ import kotlinx.coroutines.launch
 fun ChatbotScreen(navController: NavHostController) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
     val viewModel: ChatViewModel = viewModel()
     var message by remember { mutableStateOf("") }
 
@@ -30,7 +33,12 @@ fun ChatbotScreen(navController: NavHostController) {
     val messages by viewModel.messages.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
 
-    // Auto-scroll
+    // Initialize personalized chat when screen loads
+    LaunchedEffect(Unit) {
+        viewModel.initializeChat(context)
+    }
+
+    // Auto-scroll to bottom when new messages arrive
     val listState = rememberLazyListState()
     LaunchedEffect(messages.size) {
         if (messages.isNotEmpty()) {
@@ -93,6 +101,17 @@ fun ChatbotScreen(navController: NavHostController) {
                     LinearProgressIndicator(
                         modifier = Modifier.fillMaxWidth()
                     )
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+
+                // Quick action buttons (only show when not typing)
+                if (message.isEmpty() && !isLoading) {
+                    QuickActionButtons(
+                        onButtonClick = { action ->
+                            message = action
+                        }
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
                 }
 
                 // Input
@@ -104,21 +123,54 @@ fun ChatbotScreen(navController: NavHostController) {
                         value = message,
                         onValueChange = { message = it },
                         modifier = Modifier.weight(1f),
-                        placeholder = { Text("Ask anything...") }
+                        placeholder = { Text("Ask me anything...") },
+                        maxLines = 3
                     )
+
+                    Spacer(modifier = Modifier.width(8.dp))
 
                     IconButton(
                         onClick = {
                             if (message.isNotEmpty()) {
-                                viewModel.sendMessage(message)
+                                viewModel.sendMessage(message, context)
                                 message = ""
                             }
-                        }
+                        },
+                        enabled = message.isNotEmpty() && !isLoading
                     ) {
                         Icon(Icons.Default.Send, contentDescription = "Send")
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun QuickActionButtons(
+    onButtonClick: (String) -> Unit
+) {
+    val quickActions = listOf(
+        "How am I doing?",
+        "I need motivation",
+        "Help with urges",
+        "My current streak"
+    )
+
+    LazyRow(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        items(quickActions) { action ->
+            AssistChip(
+                onClick = { onButtonClick(action) },
+                label = {
+                    Text(
+                        text = action,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+            )
         }
     }
 }
@@ -130,7 +182,7 @@ fun MessageBubble(chatItem: ChatItem) {
         horizontalArrangement = if (chatItem.isFromUser) Arrangement.End else Arrangement.Start
     ) {
         Card(
-            modifier = Modifier.widthIn(max = 300.dp),
+            modifier = Modifier.widthIn(max = 280.dp),
             colors = CardDefaults.cardColors(
                 containerColor = if (chatItem.isFromUser)
                     MaterialTheme.colorScheme.primary
@@ -144,7 +196,8 @@ fun MessageBubble(chatItem: ChatItem) {
                 color = if (chatItem.isFromUser)
                     MaterialTheme.colorScheme.onPrimary
                 else
-                    MaterialTheme.colorScheme.onSurfaceVariant
+                    MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MaterialTheme.typography.bodyMedium
             )
         }
     }
