@@ -11,6 +11,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.griffith.habittracker.Controller.EmergencyController
 import com.griffith.habittracker.Controller.StreakController
+import android.content.Context
+import androidx.compose.ui.platform.LocalContext
+
+
 
 @Composable
 fun StreakCounterCard() {
@@ -85,8 +89,9 @@ fun RelapseButton() {
 
 @Composable
 fun EmergencyButton() {
+    val context = LocalContext.current
     Button(
-        onClick = { EmergencyController.showEmergencySupport() },
+        onClick = { EmergencyController.showEmergencySupport(context) },
         colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.secondary
         )

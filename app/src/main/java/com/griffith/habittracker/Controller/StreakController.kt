@@ -2,9 +2,12 @@ package com.griffith.habittracker.Controller
 
 import android.content.Context
 import androidx.compose.runtime.mutableStateOf
+import com.griffith.habittracker.Model.UserAnalytics
 import java.util.concurrent.TimeUnit
 
 object StreakController {
+
+    val stateUpdateTrigger = mutableStateOf(0)
 
     // Using a singleton object to maintain streak across screens
     val streakStartTime = mutableStateOf<Long?>(null)
@@ -36,12 +39,27 @@ object StreakController {
 
     // Record a relapse and restart timer
     fun recordRelapse(context: Context) {
+        // Save the old streak start time before resetting
+        val prefs = context.getSharedPreferences("streak_prefs", Context.MODE_PRIVATE)
+        val oldStreakStartTime = prefs.getLong("streak_start_time", 0)
+
         // Reset and restart
         streakStartTime.value = System.currentTimeMillis()
+
         // Save to preferences
-        val prefs = context.getSharedPreferences("streak_prefs", Context.MODE_PRIVATE)
-        prefs.edit().putLong("streak_start_time", streakStartTime.value!!).apply()
+        prefs.edit().putLong("streak_start_time", streakStartTime.value!!).commit()
         updateTimeComponents()
+
+        // CRUCIAL CHANGE: Call the new helper method to update longest streak directly
+        if (oldStreakStartTime > 0) {
+            UserAnalytics.updateLongestStreakIfNeeded(context, oldStreakStartTime)
+        }
+
+        // Adding the analytics tracking
+        UserAnalytics.recordRelapse(context)
+
+        // Increment the trigger to notify observers
+        stateUpdateTrigger.value += 1
     }
 
     // Calculate and update time components

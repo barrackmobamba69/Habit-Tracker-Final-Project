@@ -1,6 +1,8 @@
 package com.griffith.habittracker.Controller
 
 import androidx.compose.runtime.mutableStateOf
+import com.griffith.habittracker.Model.UserAnalytics
+import android.content.Context
 
 object EmergencyController {
     val showEmergencyDialog = mutableStateOf(false)
@@ -30,9 +32,17 @@ object EmergencyController {
         return motivationalQuotes.random()
     }
 
+    fun showEmergencySupport(context: Context) {
+        showEmergencyDialog.value = true
+
+        // Added analytics tracking
+        UserAnalytics.recordEmergency(context)
+    }
+
     fun showEmergencySupport() {
         showEmergencyDialog.value = true
     }
+
 
     fun dismissEmergencySupport() {
         showEmergencyDialog.value = false

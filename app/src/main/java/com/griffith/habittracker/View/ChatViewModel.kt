@@ -4,44 +4,37 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.ai.client.generativeai.GenerativeModel
-import com.google.ai.client.generativeai.type.generationConfig
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
+data class ChatItem(val content: String, val isFromUser: Boolean)
+
 class ChatViewModel : ViewModel() {
-    private val TAG = "ChatViewModel"
     private val apiKey = "AIzaSyD9kgsuqAIzaGl16l-jg6_ZBuE4XPw_QyE"
 
-    private val generativeModel by lazy {
-        try {
-            GenerativeModel(
-                modelName = "gemini-1.0-pro",
-                apiKey = apiKey
-            )
-        } catch (e: Exception) {
-            Log.e(TAG, "Error creating model: ${e.message}")
-            null
-        }
-    }
+    private val _messages = MutableStateFlow(listOf(ChatItem("How can I help you today?", false)))
+    val messages = _messages.asStateFlow()
 
-    fun sendMessage(question: String) {
-        Log.d("DEBUG_TEST", "sendMessage called with: $question")
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading = _isLoading.asStateFlow()
+
+    fun sendMessage(userMessage: String) {
+        if (userMessage.trim().isEmpty()) return
+
+        _messages.value += ChatItem(userMessage, true)
+        _isLoading.value = true
 
         viewModelScope.launch {
             try {
-                Log.d("DEBUG_TEST", "About to call API")
-
-                val model = GenerativeModel(
-                    modelName = "gemini-1.5-pro",
-                    apiKey = apiKey
-                )
-
-                Log.d("DEBUG_TEST", "Model created, generating content")
-                val response = model.generateContent(question)
-                Log.d("DEBUG_TEST", "Response received: ${response.text}")
+                val model = GenerativeModel("gemini-1.5-pro", apiKey)
+                val response = model.generateContent(userMessage)
+                _messages.value += ChatItem(response.text ?: "No response", false)
             } catch (e: Exception) {
-                Log.e("DEBUG_TEST", "API Error: ${e.message}")
-                e.printStackTrace()
+                Log.e("ChatViewModel", "Error: ${e.message}")
+                _messages.value += ChatItem("Sorry, couldn't connect", false)
             }
+            _isLoading.value = false
         }
     }
 }

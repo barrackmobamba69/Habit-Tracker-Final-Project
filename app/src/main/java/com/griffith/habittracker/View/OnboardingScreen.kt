@@ -8,7 +8,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -29,6 +32,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.griffith.habittracker.Controller.StreakController
 import com.griffith.habittracker.Model.UserPreferences
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.CheckCircle
+
 
 @RequiresApi(Build.VERSION_CODES.Q)
 @Composable
@@ -55,7 +61,7 @@ fun OnboardingNavigation() {
             MeditationScreen(navController)
         }
         composable("stats") {
-            Text("Stats Screen")
+            StatsScreen(navController)
         }
         composable("chatbot") {
             ChatbotScreen(navController)

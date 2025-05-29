@@ -1,5 +1,6 @@
 package com.griffith.habittracker.View
 
+import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -80,7 +81,7 @@ fun DashboardScreen(navController: NavHostController) {
                     actions = {
                         // Emergency button
                         Button(
-                            onClick = { EmergencyController.showEmergencySupport() },
+                            onClick = { EmergencyController.showEmergencySupport(context) },
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = MaterialTheme.colorScheme.secondary
                             )
@@ -172,7 +173,43 @@ fun DashboardScreen(navController: NavHostController) {
                 // Relapse Button
                 Button(
                     onClick = {
+                        // First record the relapse
                         StreakController.recordRelapse(context)
+
+                        // Then force the UserAnalytics to update longest streak values
+                        // Get current streak duration that just ended
+                        val streakPrefs = context.getSharedPreferences("streak_prefs", Context.MODE_PRIVATE)
+                        val streakStartTime = streakPrefs.getLong("streak_start_time", 0)
+                        if (streakStartTime > 0) {
+                            val currentTime = System.currentTimeMillis()
+                            val totalStreakDurationMillis = currentTime - streakStartTime
+
+                            // Calculate total minutes
+                            val totalMinutes = totalStreakDurationMillis / (1000 * 60)
+
+                            // Convert to days, hours, and minutes
+                            val days = (totalMinutes / (24 * 60)).toInt()
+                            val hours = ((totalMinutes % (24 * 60)) / 60).toInt()
+                            val minutes = (totalMinutes % 60).toInt()
+
+                            // Get stored longest streak from preferences
+                            val analyticsPrefs = context.getSharedPreferences("analytics_prefs", Context.MODE_PRIVATE)
+                            val longestDays = analyticsPrefs.getInt("longest_streak", 0)
+                            val longestHours = analyticsPrefs.getInt("longest_streak_hours", 0)
+                            val longestMinutes = analyticsPrefs.getInt("longest_streak_minutes", 0)
+
+                            // Convert everything to minutes for comparison
+                            val longestTotalMinutes = (longestDays * 24 * 60) + (longestHours * 60) + longestMinutes
+
+                            // Update if current streak is longer
+                            if (totalMinutes > longestTotalMinutes || longestTotalMinutes == 0) {
+                                analyticsPrefs.edit()
+                                    .putInt("longest_streak", days)
+                                    .putInt("longest_streak_hours", hours)
+                                    .putInt("longest_streak_minutes", minutes)
+                                    .apply()
+                            }
+                        }
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -186,7 +223,6 @@ fun DashboardScreen(navController: NavHostController) {
                         style = MaterialTheme.typography.titleLarge
                     )
                 }
-
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Tasks Section with height constraint
@@ -367,8 +403,6 @@ fun YouTubeVideosList() {
                     contentScale = ContentScale.Crop
                 )
             }
-
-            //Spacer(modifier = Modifier.height(8.dp))
 
             Text(
                 text = video.title,

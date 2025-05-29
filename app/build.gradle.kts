@@ -51,6 +51,11 @@ android {
 
 dependencies {
 
+    // Vico dependencies
+    implementation (libs.lottie.compose) // lottiefiles
+    implementation(libs.core)
+    implementation(libs.compose)
+    implementation(libs.compose.m3) // For Material 3 theme integration
     implementation (libs.coil.compose.v222)
     implementation (libs.generativeai) //Gemini dependency 0.9.0
     implementation(libs.coil.compose)

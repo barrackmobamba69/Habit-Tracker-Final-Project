@@ -1,6 +1,8 @@
 // View/SettingsScreen.kt
 package com.griffith.habittracker.View
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -92,39 +94,6 @@ fun SettingsScreen(navController: NavHostController) {
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Appearance Section
-                SectionTitle("Appearance")
-
-                Card(modifier = Modifier.fillMaxWidth()) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        // Dark Mode Switch
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 8.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = "Dark Mode",
-                                    style = MaterialTheme.typography.bodyLarge
-                                )
-                            }
-
-                            Switch(
-                                checked = isDarkMode,
-                                onCheckedChange = {
-                                    isDarkMode = it
-                                    SettingsController.setDarkMode(context, it)
-                                }
-                            )
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(24.dp))
-
                 // Notifications Section
                 SectionTitle("Notifications")
 
@@ -166,7 +135,11 @@ fun SettingsScreen(navController: NavHostController) {
                         // Help Center
                         SettingsItemSimple(
                             title = "Help Center",
-                            onClick = { /* Navigate to help screen */ }
+                            onClick = {
+                                // Implicit Intent - Open URL in browser
+                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://google.com"))
+                                context.startActivity(intent)
+                            }
                         )
 
                         Divider(modifier = Modifier.padding(vertical = 8.dp))
@@ -182,7 +155,7 @@ fun SettingsScreen(navController: NavHostController) {
                 Spacer(modifier = Modifier.height(24.dp))
 
                 // Data Management
-                SectionTitle("Data Management")
+                SectionTitle("WIP")
 
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(16.dp)) {
