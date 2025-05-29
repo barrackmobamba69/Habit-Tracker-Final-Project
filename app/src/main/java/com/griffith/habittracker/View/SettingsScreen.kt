@@ -1,6 +1,7 @@
 // View/SettingsScreen.kt
 package com.griffith.habittracker.View
 
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.clickable
@@ -31,11 +32,15 @@ fun SettingsScreen(navController: NavHostController) {
 
     // State variables
     var showUsernameDialog by remember { mutableStateOf(false) }
+    var showHabitDialog by remember { mutableStateOf(false) }
+    var showReasonDialog by remember { mutableStateOf(false) }
     var showResetDialog by remember { mutableStateOf(false) }
     var showContactDialog by remember { mutableStateOf(false) }
 
     // Settings state
     var username by remember { mutableStateOf(SettingsController.getUsername(context)) }
+    var habit by remember { mutableStateOf(getUserHabit(context)) }
+    var reason by remember { mutableStateOf(getUserReason(context)) }
     var isDarkMode by remember { mutableStateOf(SettingsController.isDarkMode(context)) }
     var notificationsEnabled by remember { mutableStateOf(SettingsController.areNotificationsEnabled(context)) }
 
@@ -88,6 +93,24 @@ fun SettingsScreen(navController: NavHostController) {
                             title = "Change Username",
                             subtitle = "Current: $username",
                             onClick = { showUsernameDialog = true }
+                        )
+
+                        Divider(modifier = Modifier.padding(vertical = 8.dp))
+
+                        // Change Habit
+                        SettingsItemSimple(
+                            title = "Change Habit",
+                            subtitle = "Current: $habit",
+                            onClick = { showHabitDialog = true }
+                        )
+
+                        Divider(modifier = Modifier.padding(vertical = 8.dp))
+
+                        // Change Reason
+                        SettingsItemSimple(
+                            title = "Change Reason",
+                            subtitle = "Current: $reason",
+                            onClick = { showReasonDialog = true }
                         )
                     }
                 }
@@ -218,6 +241,77 @@ fun SettingsScreen(navController: NavHostController) {
         )
     }
 
+    // Habit Dialog
+    if (showHabitDialog) {
+        var newHabit by remember { mutableStateOf(habit) }
+
+        AlertDialog(
+            onDismissRequest = { showHabitDialog = false },
+            title = { Text("Change Habit") },
+            text = {
+                OutlinedTextField(
+                    value = newHabit,
+                    onValueChange = { newHabit = it },
+                    label = { Text("What habit are you quitting?") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        if (newHabit.isNotBlank()) {
+                            context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+                                .edit()
+                                .putString("habit", newHabit)
+                                .apply()
+                            habit = newHabit
+                            showHabitDialog = false
+                        }
+                    }
+                ) { Text("Save") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showHabitDialog = false }) { Text("Cancel") }
+            }
+        )
+    }
+
+    // Reason Dialog
+    if (showReasonDialog) {
+        var newReason by remember { mutableStateOf(reason) }
+
+        AlertDialog(
+            onDismissRequest = { showReasonDialog = false },
+            title = { Text("Change Reason") },
+            text = {
+                OutlinedTextField(
+                    value = newReason,
+                    onValueChange = { newReason = it },
+                    label = { Text("Why are you quitting?") },
+                    modifier = Modifier.fillMaxWidth(),
+                    maxLines = 3
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        if (newReason.isNotBlank()) {
+                            context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+                                .edit()
+                                .putString("reason", newReason)
+                                .apply()
+                            reason = newReason
+                            showReasonDialog = false
+                        }
+                    }
+                ) { Text("Save") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showReasonDialog = false }) { Text("Cancel") }
+            }
+        )
+    }
+
     // Reset Confirmation Dialog
     if (showResetDialog) {
         AlertDialog(
@@ -310,4 +404,15 @@ fun SettingsItemSimple(
             )
         }
     }
+}
+
+// Helper functions
+private fun getUserHabit(context: Context): String {
+    return context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+        .getString("habit", "your habit") ?: "your habit"
+}
+
+private fun getUserReason(context: Context): String {
+    return context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+        .getString("reason", "your health") ?: "your health"
 }
